@@ -9,11 +9,13 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
         many = True
 
+
 class TripSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trip
         fields = '__all__'
         many = True
+
 
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,18 +23,23 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = '__all__'
         many = True
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id','username','email','is_superuser','first_name','last_login')
+        fields = ('id', 'username', 'email', 'is_superuser',
+                  'first_name', 'last_login')
         many = True
+
 
 class CustomUserSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+
     class Meta:
         model = CustomUser
         fields = '__all__'
         many = True
+
 
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -40,27 +47,33 @@ class BookingSerializer(serializers.ModelSerializer):
         fields = '__all__'
         many = True
 
+
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = '__all__'
         many = True
 
+
 class AvailabilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Availability
         fields = '__all__'
         many = True
-        
+
+
 class ConversationHistorySerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+
     class Meta:
         model = ConversationHistory
         fields = '__all__'
         many = True
 
+
 class ConversationSerializer(serializers.ModelSerializer):
     history = ConversationHistorySerializer(read_only=True)
+
     class Meta:
         model = Conversation
         fields = '__all__'
