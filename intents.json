@@ -1,0 +1,41 @@
+{
+    "intents": [
+        {
+            "tag": "Cumprimento",
+            "patterns": [
+                "Oi",
+                "Olá",
+                "Como vai?"
+            ],
+            "responses": [
+                "Olá, vai se fuder!",
+                "Vai dar teu cu, porra."
+            ],
+            "required": [
+                "\n Ou se preferir, digite alguma dessas opções: \n -Dar o cu\n -Chupar pau\n -Se ☠"
+            ]
+        },
+        {
+            "tag": "Listar",
+            "patterns": [
+                "listar viagem",
+                "opções de viagens",
+                "quais as viagens disponíveis?",
+                "viagens?",
+                "viagem",
+                "opções"
+            ],
+            "responses": [
+                "Ok, aqui está alguma de nossas opções!",
+                "Certo, já vou te informar nossas ofertas!"
+            ],
+            "required": [
+                "\n Ou se preferir, digite o destino desejado!"
+            ],
+            "command": [
+                "list_trips"
+                
+            ]
+        }
+    ]
+}
