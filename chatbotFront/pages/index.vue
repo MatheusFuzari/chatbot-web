@@ -1,50 +1,73 @@
 <script setup>
-    let question = ref('')
-    let respon = ref('')
-    const SendForm = async() => {
-        console.log(question)
-        const {data: bardRes} = await useFetch("http://127.0.0.1:8000/chatbot/",
-        {
-            method: 'POST',
-            body: {
-                'question': question
-            },
-        })
-        console.log(bardRes)
-        respon.value = bardRes.value
-    }
-
-    const dialog = {
+    let response = ref("")
+    const dialog = reactive({
+        text: '',
         type: '',
-        message: '',
+        name: '',
+        image: '',
+        historyId: null
+    });
+
+    const includeDialog = ((type)=>{
+        if(type === 'Q'){
+            dialog.image = 'cachorro.png';
+            dialog.name = 'Fuzari';            
+            dialog.type = 'right';
+        } else {
+            dialog.image = 'gibby.png';
+            dialog.name = 'Bot';            
+            dialog.type = 'left';
+        }
+        // faz a cópia profunda da estrutura com os valores atuais (deep copy)
+        conversationHistory.value.push(
+            JSON.parse(JSON.stringify(dialog))
+        );
+    });
+    
+    const sendMessage = async () => {
+        console.log(dialog.text);
+        includeDialog('Q');
+        
+        //message.value;
+        const {data: answer} = await useFetch('http://localhost:8000/chatbot/',{
+            method: 'POST',
+            body:{
+                question: dialog.text,
+                userId: 1,
+                conversationId: dialog.historyId
+            }   
+        })
+        dialog.text = answer.value.message
+        dialog.historyId = answer.value.history.id
+        includeDialog('A');
+        dialog.text = '';
     }
 
+const conversationHistory = ref([])
 
-    let dialogs = ref([])
-
-    const addDialog = computed((diag)=>(dialogs.push(diag)))
 </script>
+
 <template>
-    <div class="">
-        <div :v-for="(d, index) in dialogs" :key=index>
-            <TextBox avatarImage="gibby.png" name="Gibby pança de égua" :message="d.message" :side="d.type" TextBox>></TextBox>
-        </div>
-        <label class="text-red-500">Ask anything...: </label>
-        <br>
-        <textarea v-model='question' class="border-2 border-blue-300"></textarea>
-        <br>
-        <Button label="Ask" @click="SendForm"></Button>
-    </div>
-    <br>
-    <hr class="bg-black text-black h-1">
-    <br>
     <div>
-        <h2>Bard: </h2>
-        <p>
-            {{ respon.content }}
-        </p>
+        <div v-for="(conversation, id) in conversationHistory" :key="id">
+            <TextBox :name="conversation.name" :avatarImage="conversation.image" 
+                :message="conversation.text" :type="conversation.type"/>
+        </div>
+        <label for=""> Type here your message!</label> <br>
+        <textarea v-model="dialog.text"/> <br> <br>        
+        <Button @click="sendMessage" label="Send"></Button>
+        <hr>
+        <div>
+            <h5>Bard: 😎</h5>
+            <p> {{ response }} </p>
+        </div>
     </div>
-    <br>
-    <TextBox avatarImage="gibby.png" name="Gibby pança de égua" message="It's that glock? It's that glock?" side="left" TextBox>></TextBox>
-    <TextBox avatarImage="cachorro.png" name="Cachorro barriga d'verme" message="Oh my godness, mate!" side="right"></TextBox>
 </template>
+
+<style scoped>
+     
+    /* button{
+        background-color: black;
+        color: white;
+    } */
+</style>

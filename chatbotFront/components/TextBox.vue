@@ -1,31 +1,35 @@
+<script setup>
+const props = defineProps({
+    avatarImage: { type: String },
+    name: { type: String },
+    message: { type: String },
+    type: { type: String }
+})
 
-import type { mergeProps } from 'vue';
-<script setup leng="ts">
-    const props = defineProps({
-        avatarImage: {type: String},
-        name: {type: String},
-        message: {type: String},
-        side: {type: String}
-    })
+/* modo de comunicar props e css mais indicado quando não há tantas variações
+const cardStyle = computed(()=> props.type === 'right' ? 
+    {
+        backColor: 'red',
+        fontSize: '1.5rem',
+        textColor: 'white'
+    } 
+: 
+    {
+        backColor: 'black',
+        fontSize: '3.5rem',
+        textColor: 'yellow'
+    }    
+)*/
 
-    const cardStyle = computed(()=>(props.side == 'left' ? 
-        {
-            color: 'red',
-            size: '15px'
-        } :
-        {
-            color: 'blue',
-            size: '25px'
-        }
-    ))
 </script>
+
 <template>
-    <div>
-        <Fieldset :class="props.side == 'left' ? 'question' : 'answer' ">
+    <div class="text-box" :class="props.type === 'right' ? 'right-style' : 'left-style'">
+        <Fieldset>
             <template #legend>
                 <div class="flex align-items-center pl-2">
                     <Avatar :image="props.avatarImage" shape="circle" />
-                    <span class="font-bold">{{ props.name }}</span>
+                    <span class="font-bold"> {{ props.name }}</span>
                 </div>
             </template>
             <p class="m-0">
@@ -35,28 +39,31 @@ import type { mergeProps } from 'vue';
     </div>
 </template>
 
-<style scoped lang='scss'>
-    .question{
-        .p-fieldset-legend div{
-            display: flex;
-            justify-content: flex-end;
-        }
+<style scoped lang="scss">
+/* modo de comunicar props e css mais indicado quando não há tantas variações
+    .p-fieldset{
+        background-color: v-bind(cardStyle.backColor);
+        font-size: v-bind(cardStyle.fontSize);
+        color: v-bind(cardStyle.textColor);
+    }*/
 
-        .p-toggleable-content .p-fieldset-content p{
-            display: flex;
-            justify-content: flex-end;
-        }
-    }
-    .answer{
-        .p-fieldset-legend div{
-            display: flex;
-            justify-content: flex-end;
-        }
+.text-box {
 
-        .p-toggleable-content p{
-            display: flex;
-            justify-content: flex-end;
-        }
+    .p-fieldset {
+        font-size: 1rem;
+        color: black;       
     }
-    
+}
+
+.right-style {
+    .p-fieldset {
+        background-color: rgb(78, 78, 94);
+    }
+}
+
+.left-style {
+    .p-fieldset {
+        background-color: rgb(69, 52, 55);
+    }
+}
 </style>
