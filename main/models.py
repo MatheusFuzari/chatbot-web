@@ -129,7 +129,7 @@ class ConversationHistory(models.Model):
     date = models.DateField(auto_now_add=True)
     user = models.ForeignKey(
         User, related_name='userHistory', on_delete=models.CASCADE)
-
+    lastCommand = models.CharField(blank=True,null=True, max_length=100)
     def __str__(self):
         return self.user.email
 

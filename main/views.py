@@ -10,7 +10,7 @@ from datetime import timedelta, datetime
 from django_filters.rest_framework import DjangoFilterBackend
 from .customFilters import *
 from rest_framework import filters
-from django.db.models import Avg
+from django.db.models import Avg, Q
 from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly
@@ -153,6 +153,15 @@ class AvailabilityView(CustomModelViewSet):
     # permission_classes = (DjangoModelPermissionsOrAnonReadOnly,)
 
 
+def convertToMessage(data, attributeName):
+    index = 1
+    response = '\n'
+    
+    for trip in data:
+        response += str(index) + '- ' + getattr(trip, attributeName,None) + '\n '
+        index+=1
+    return response
+
 class ChatBotAPIView(APIView):
     def post(self, request):
         data = request.data
@@ -176,7 +185,6 @@ class ChatBotAPIView(APIView):
             try:
                 conversationExistis = ConversationHistory.objects.get(
                     pk=conversationId)
-                print(conversationId)
             except ObjectDoesNotExist:
                 return JsonResponse(status=500, data={'content': "Conversa não existe!"})
 
@@ -185,9 +193,24 @@ class ChatBotAPIView(APIView):
         newQuestion.save()
 
         answer = chat.get_response(question)
-
-        newAnswer = Conversation(
-            type="A", message=answer.message, history=conversationExistis)
+        
+        finalMessage = answer.message
+        newAnswer = None
+        if(answer.command == 'LIST_TRIPS'):
+            trips = Trip.objects.all()
+            finalMessage += convertToMessage(trips,'title')  
+            newAnswer = Conversation(
+            type="A", message=finalMessage if answer.additionalMessage is None else finalMessage + answer.additionalMessage[0], history=conversationExistis)
+        elif(conversationExistis.lastCommand == "SEARCH_TRIP"):
+            trips = Trip.objects.filter(Q(title__icontains = question) | Q(description__icontains = question) | Q(city__icontains = question))
+            finalMessage = convertToMessage(trips,'title') if trips.exists() else "sem resultados"
+            newAnswer = Conversation(type="A", message=finalMessage, history=conversationExistis)
+        else:
+            newAnswer = Conversation(
+            type="A", message=finalMessage if answer.additionalMessage is None else finalMessage + answer.additionalMessage[0], history=conversationExistis)
+            conversationExistis.lastCommand = answer.command
+            conversationExistis.save()
+        
         newAnswer.save()
 
         serializedAnswer = ConversationSerializer(newAnswer, many=False)

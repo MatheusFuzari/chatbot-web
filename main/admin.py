@@ -63,3 +63,18 @@ class adminAvailability(admin.ModelAdmin):
 
 admin.site.register(Availability, adminAvailability)
 
+class adminConversationHistory(admin.ModelAdmin):
+    list_display = ('id', 'date', 'user')
+    list_display_links = ('date', 'user')
+    search_fields = ('date', )
+    list_per_page = 10
+
+admin.site.register(ConversationHistory, adminConversationHistory)
+
+class adminConversation(admin.ModelAdmin):
+    list_display = ('id', 'type', 'date', 'history')
+    list_display_links = ('type', 'date', 'history')
+    search_fields = ('date', 'type', )
+    list_per_page = 10
+
+admin.site.register(Conversation, adminConversation)

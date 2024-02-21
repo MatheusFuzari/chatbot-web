@@ -32,10 +32,25 @@
             "required": [
                 "\n Ou se preferir, digite o destino desejado!"
             ],
-            "command": [
-                "list_trips"
-                
-            ]
+            "command": "LIST_TRIPS"
+        },
+        {
+            "tag": "procurar",
+            "patterns": [
+                "Procurar uma viagem",
+                "quero procurar uma viagem",
+                "encontrar uma viagem",
+                "filtrar",
+                "encontrar",
+                "fazer uma viagem",
+                "ache uma viagem",
+                "quero uma viagem"
+            ],
+            "responses" : [
+                "Certo, para onde iremos?",
+                "Legal, digite seu destino!"
+            ],
+            "command" : "SEARCH_TRIP"
         }
     ]
 }
