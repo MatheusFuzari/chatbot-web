@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
 
 from django_filters.rest_framework import DjangoFilterBackend
 from .customFilters import *
@@ -156,13 +156,28 @@ class AvailabilityView(CustomModelViewSet):
 def convertToMessage(data, attributeName):
     index = 1
     response = '\n'
-    
+
     for trip in data:
-        response += str(index) + '- ' + getattr(trip, attributeName,None) + '\n '
-        index+=1
+        response += str(index) + '- ' + getattr(trip,
+                                                attributeName, None) + '\n '
+        index += 1
     return response
 
+
 class ChatBotAPIView(APIView):
+    def get(self, request, userId=''):
+        if userId == '':
+            return Response(status=400, data='userId is required to make this request!! - '+str(userId)+" - "+str(request.GET['userId']))
+        else:
+            try:
+                conversationFound = Conversation.objects.filter(
+                    history__user__id=userId)
+                conversationSerialized = ConversationSerializer(
+                    conversationFound, many=True)
+                return Response(status=201, data=conversationSerialized.data)
+            except ObjectDoesNotExist:
+                return Response(status=400, data='No previous conversations found')
+
     def post(self, request):
         data = request.data
         question = data.get('question')
@@ -193,24 +208,62 @@ class ChatBotAPIView(APIView):
         newQuestion.save()
 
         answer = chat.get_response(question)
-        
+
         finalMessage = answer.message
         newAnswer = None
-        if(answer.command == 'LIST_TRIPS'):
+        print(answer.command)
+        print(conversationExistis.lastCommand)
+        if (answer.command == 'LIST_TRIPS'):
             trips = Trip.objects.all()
-            finalMessage += convertToMessage(trips,'title')  
+            finalMessage += convertToMessage(trips, 'title')
             newAnswer = Conversation(
-            type="A", message=finalMessage if answer.additionalMessage is None else finalMessage + answer.additionalMessage[0], history=conversationExistis)
-        elif(conversationExistis.lastCommand == "SEARCH_TRIP"):
-            trips = Trip.objects.filter(Q(title__icontains = question) | Q(description__icontains = question) | Q(city__icontains = question))
-            finalMessage = convertToMessage(trips,'title') if trips.exists() else "sem resultados"
-            newAnswer = Conversation(type="A", message=finalMessage, history=conversationExistis)
-        else:
-            newAnswer = Conversation(
-            type="A", message=finalMessage if answer.additionalMessage is None else finalMessage + answer.additionalMessage[0], history=conversationExistis)
+                type="A", message=finalMessage if answer.additionalMessage is None else finalMessage + answer.additionalMessage[0], history=conversationExistis)
             conversationExistis.lastCommand = answer.command
             conversationExistis.save()
-        
+        elif (conversationExistis.lastCommand == "SEARCH_TRIP" and answer.command == None):
+            trips = Trip.objects.filter(Q(title__icontains=question) | Q(
+                description__icontains=question) | Q(city__icontains=question))
+            finalMessage = convertToMessage(
+                trips, 'title') if trips.exists() else "Sem resultados"
+            newAnswer = Conversation(
+                type="A", message=finalMessage, history=conversationExistis)
+        elif (answer.command == "SEARCH_TRIP_BY_SCORE"):
+            booking = Booking.objects.filter(score__gte=6)
+            trips = Trip.objects.filter(
+                pk__in=booking.values_list("tripFK").distinct())
+            finalMessage += convertToMessage(trips, 'title')
+            newAnswer = Conversation(
+                type="A", message=finalMessage, history=conversationExistis)
+            conversationExistis.lastCommand = answer.command
+            conversationExistis.save()
+        elif (conversationExistis.lastCommand == "SEARCH_TRIP_BY_AVAILABILITY" and answer.command == None):
+            try:
+                questionDate = datetime.strptime(question, "%d/%m/%Y")
+                questionDate = date(
+                    questionDate.year, questionDate.month, questionDate.day)
+                today = datetime.date(datetime.today())
+                if (questionDate >= today):
+                    availability = Availability.objects.filter(
+                        date__gte=questionDate).filter(bookingFK=None)
+                    trips = Trip.objects.filter(
+                        pk__in=availability.values_list("tripFK").distinct())
+                    finalMessage = convertToMessage(
+                        trips, "title") if trips.exists() else "Sem resultados"
+                    newAnswer = Conversation(
+                        type="A", message=finalMessage, history=conversationExistis)
+                else:
+                    newAnswer = Conversation(
+                        type="A", message="Está data está ultrapassada, por favor, digite um data superior ou igual ao dia de hoje, "+today.strftime("%d/%m/%Y"), history=conversationExistis)
+            except Exception as e:
+                print(e)
+                newAnswer = Conversation(
+                    type="A", message="Formato de data inválido", history=conversationExistis)
+        else:
+            newAnswer = Conversation(
+                type="A", message=finalMessage if answer.additionalMessage is None else finalMessage + answer.additionalMessage[0], history=conversationExistis)
+            conversationExistis.lastCommand = answer.command
+            conversationExistis.save()
+
         newAnswer.save()
 
         serializedAnswer = ConversationSerializer(newAnswer, many=False)

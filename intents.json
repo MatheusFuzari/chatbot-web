@@ -13,7 +13,8 @@
             ],
             "required": [
                 "\n Ou se preferir, digite alguma dessas opções: \n -Dar o cu\n -Chupar pau\n -Se ☠"
-            ]
+            ],
+            "command": "HANDSHAKE"
         },
         {
             "tag": "Listar",
@@ -35,7 +36,7 @@
             "command": "LIST_TRIPS"
         },
         {
-            "tag": "procurar",
+            "tag": "Procurar",
             "patterns": [
                 "Procurar uma viagem",
                 "quero procurar uma viagem",
@@ -44,13 +45,45 @@
                 "encontrar",
                 "fazer uma viagem",
                 "ache uma viagem",
-                "quero uma viagem"
+                "quero uma viagem",
+                "Procurar viajens"
             ],
-            "responses" : [
+            "responses": [
                 "Certo, para onde iremos?",
                 "Legal, digite seu destino!"
             ],
-            "command" : "SEARCH_TRIP"
+            "command": "SEARCH_TRIP"
+        },
+        {
+            "tag": "ProcurarPorScore",
+            "patterns": [
+                "Procurar as melhores viagens",
+                "Buscar pelas melhores viagens",
+                "Só as melhores viagens",
+                "Quais são as melhores viagens?",
+                "Qual a melhor viagem?",
+                "Melhores",
+                "Quero a melhor"
+            ],
+            "responses": [
+                "Certo, aqui estão as melhores avaliadas!",
+                "Ok, buscando as melhores viagens"
+            ],
+            "command": "SEARCH_TRIP_BY_SCORE"
+        },
+        {
+            "tag": "ProcurarDisponibilidade",
+            "patterns": [
+                "Quero ver as disponibilidades",
+                "disponiveis",
+                "Procurar disponibilidade",
+                "Quero saber quais viagens são possíveis reservar"
+            ],
+            "responses": [
+                "Certo, me diga a partir de que qual data? (modelo de data: DD/MM/YYYY)",
+                "Ok, antes me diga, a partir de que data você deseja? (modelo de data: DD/MM/YYYY)"
+            ],
+            "command": "SEARCH_TRIP_BY_AVAILABILITY"
         }
     ]
 }
