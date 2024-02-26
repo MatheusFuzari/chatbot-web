@@ -1,47 +1,49 @@
 <script setup>
-    let response = ref("")
-    const dialog = reactive({
-        text: '',
-        type: '',
-        name: '',
-        image: '',
-        historyId: null
-    });
+let response = ref("")
+const dialog = reactive({
+    text: '',
+    type: '',
+    name: '',
+    image: '',
+    historyId: null
+});
 
-    const includeDialog = ((type)=>{
-        if(type === 'Q'){
-            dialog.image = 'cachorro.png';
-            dialog.name = 'Fuzari';            
-            dialog.type = 'right';
-        } else {
-            dialog.image = 'gibby.png';
-            dialog.name = 'Bot';            
-            dialog.type = 'left';
-        }
-        // faz a cópia profunda da estrutura com os valores atuais (deep copy)
-        conversationHistory.value.push(
-            JSON.parse(JSON.stringify(dialog))
-        );
-    });
-    
-    const sendMessage = async () => {
-        console.log(dialog.text);
-        includeDialog('Q');
-        
-        //message.value;
-        const {data: answer} = await useFetch('http://localhost:8000/chatbot/',{
-            method: 'POST',
-            body:{
-                question: dialog.text,
-                userId: 1,
-                conversationId: dialog.historyId
-            }   
-        })
-        dialog.text = answer.value.message
-        dialog.historyId = answer.value.history.id
-        includeDialog('A');
-        dialog.text = '';
+const includeDialog = ((type) => {
+    if (type === 'Q') {
+        dialog.image = 'cachorro.png';
+        dialog.name = 'Fuzari';
+        dialog.type = 'right';
+    } else {
+        dialog.image = 'gibby.png';
+        dialog.name = 'Bot';
+        dialog.type = 'left';
     }
+    // faz a cópia profunda da estrutura com os valores atuais (deep copy)
+    conversationHistory.value.push(
+        JSON.parse(JSON.stringify(dialog))
+    );
+});
+
+const sendMessage = async () => {
+    console.log(dialog.text);
+    includeDialog('Q');
+
+    //message.value;
+    const { data: answer } = await useFetch('http://localhost:8000/chatbot/', {
+        method: 'POST',
+        body: {
+            question: dialog.text,
+            userId: 1,
+            conversationId: dialog.historyId
+        }
+    })
+    dialog.text = answer.value.message
+    dialog.historyId = answer.value.history.id
+    includeDialog('A');
+    dialog.text = '';
+}
+
+const { data: requestHistory } = await useFetch('http://127.0.0.1:8000/history/1')
 
 const conversationHistory = ref([])
 
@@ -50,23 +52,27 @@ const conversationHistory = ref([])
 <template>
     <div>
         <div v-for="(conversation, id) in conversationHistory" :key="id">
-            <TextBox :name="conversation.name" :avatarImage="conversation.image" 
-                :message="conversation.text" :type="conversation.type"/>
+            <TextBox :name="conversation.name" :avatarImage="conversation.image" :message="conversation.text"
+                :type="conversation.type" />
         </div>
         <label for=""> Type here your message!</label> <br>
-        <textarea v-model="dialog.text"/> <br> <br>        
+        <textarea v-model="dialog.text" /> <br> <br>
         <Button @click="sendMessage" label="Send"></Button>
         <hr>
         <div>
-            <h5>Bard: 😎</h5>
-            <p> {{ response }} </p>
+            <Icon name="material-symbols:chat-bubble" size='25'/>
+            <h5>Last history...</h5>
+            <div v-for="(history, index) in requestHistory" :key="index">
+                <div>
+                    {{ history.id }}
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-     
-    /* button{
+/* button{
         background-color: black;
         color: white;
     } */

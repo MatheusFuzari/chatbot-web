@@ -51,7 +51,7 @@ const cardStyle = computed(()=> props.type === 'right' ?
 
     .p-fieldset {
         font-size: 1rem;
-        color: black;       
+        color: black;
     }
 }
 

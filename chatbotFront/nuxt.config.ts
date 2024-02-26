@@ -2,11 +2,12 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
-    'nuxt-primevue'
+    'nuxt-primevue',
+    'nuxt-icon'
   ],
   primevue: {
     components: {
-      include: ['Button','Fieldset','Avatar']
+      include: ['Button', 'Fieldset', 'Avatar', 'Menu',]
     }
   },
 })
