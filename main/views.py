@@ -164,19 +164,34 @@ def convertToMessage(data, attributeName):
     return response
 
 
-class ChatBotAPIView(APIView):
+class ChatBotHistoryAPIView(APIView):
     def get(self, request, userId=''):
         if userId == '':
             return Response(status=400, data='userId is required to make this request!! - '+str(userId)+" - "+str(request.GET['userId']))
         else:
             try:
+                historyFound = ConversationHistory.objects.filter(
+                    user_id=userId)
+                historySerialized = ConversationHistorySerializer(
+                    historyFound, many=True)
+                return Response(status=201, data=historySerialized.data)
+            except ObjectDoesNotExist:
+                return Response(status=400, data='No previous conversations found')
+
+
+class ChatBotAPIView(APIView):
+    def get(self, request, historyId=''):
+        if historyId == '':
+            return Response(status=400, data='History Id is required to make this request!! - '+str(historyId)+" - "+str(request.GET['historyId']))
+        else:
+            try:
                 conversationFound = Conversation.objects.filter(
-                    history__user__id=userId)
+                    history__pk=historyId)
                 conversationSerialized = ConversationSerializer(
                     conversationFound, many=True)
                 return Response(status=201, data=conversationSerialized.data)
             except ObjectDoesNotExist:
-                return Response(status=400, data='No previous conversations found')
+                return Response(status=400, data='No conversation history found')
 
     def post(self, request):
         data = request.data
