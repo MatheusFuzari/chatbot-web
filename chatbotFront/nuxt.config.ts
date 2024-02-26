@@ -7,7 +7,7 @@ export default defineNuxtConfig({
   ],
   primevue: {
     components: {
-      include: ['Button', 'Fieldset', 'Avatar', 'Menu',]
+      include: ['Button', 'Fieldset', 'Avatar', 'Menu', 'Menubar']
     }
   },
 })

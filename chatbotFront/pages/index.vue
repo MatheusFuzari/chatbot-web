@@ -43,7 +43,7 @@ const sendMessage = async () => {
     dialog.text = '';
 }
 
-const { data: requestHistory } = await useFetch('http://127.0.0.1:8000/history/1')
+//const { data: requestHistory } = await useFetch('http://127.0.0.1:8000/history/1')
 
 const conversationHistory = ref([])
 
