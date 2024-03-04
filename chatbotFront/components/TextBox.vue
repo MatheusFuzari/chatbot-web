@@ -40,13 +40,6 @@ const cardStyle = computed(()=> props.type === 'right' ?
 </template>
 
 <style scoped lang="scss">
-/* modo de comunicar props e css mais indicado quando não há tantas variações
-    .p-fieldset{
-        background-color: v-bind(cardStyle.backColor);
-        font-size: v-bind(cardStyle.fontSize);
-        color: v-bind(cardStyle.textColor);
-    }*/
-
 .text-box {
 
     .p-fieldset {
